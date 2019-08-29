@@ -1,0 +1,158 @@
+<title>ReyTexTab</title>
+<textarea spellcheck=false style="outline:none;height:100%;width:100%;border:none;background-color:272822;color:f7f8f2;padding:2rem;font:1.2rem monospace;"></textarea>
+<body bgcolor=272822></body>
+
+<script type="text/javascript">
+		var textsave = "";
+		window.onLoad = main();
+		window.onbeforeunload = closing;
+
+
+		function main(){
+			mtext = document.getElementsByTagName("textarea")[0];
+			mtext.addEventListener("keydown", handleChars, false);
+
+			addEventListenerMulti(mtext, "keyup change mouseup drop paste cut", checkTextChange, false);
+			mtext.addEventListener("drop", unsaved, false);
+
+			mtext.focus();
+
+			document.addEventListener("keydown", function(e) {
+			  if (e.keyCode == 83 && e.ctrlKey) {
+			    save();
+			    e.preventDefault();
+			  }
+			}, false);
+		}
+
+
+		function addEventListenerMulti(obj, events, fxn, pols){
+			es = events.split(" ");
+			for (var e in es) obj.addEventListener(es[e], fxn, pols);
+		}
+
+		function unsaved(e){
+			textsave += " ";
+			checkTextChange();
+		}
+
+		function checkTextChange(){
+			var mtitle = document.getElementsByTagName("title")[0];
+			mtitle.text = (mtext.value != textsave) ? "* ReyTexTab" : "ReyTexTab";
+		}
+
+		function handleChars(e){
+			var target = e.target;
+			var value = target.value;
+
+			var selStart = this.selectionStart;
+			var selLeft = value.substring(0, selStart);
+			var selRight = value.substring(this.selectionEnd);
+
+			/*console.log(e.keyCode);*/
+			switch (e.keyCode){ /* <tab> */
+				case 9:
+			        target.value = selLeft + "\t" + selRight;
+			        this.selectionStart = this.selectionEnd = selStart + 1;
+			        e.preventDefault();
+			        break;
+			    case 57:  /* ( */
+			    case 222:  /* ' or " */
+				case 219: /* [  or  { */
+					if (e.altKey || e.ctrlKey) break;
+					if (!e.shiftKey && e.keyCode == 57) break;
+
+					if (e.keyCode == 57) toAdd = '()';
+					else if (e.keyCode == 219) toAdd = e.shiftKey ? '{}' :'[]' ;
+					else if (e.keyCode == 222) {
+						toAdd = e.shiftKey ? '""' : '\'\'';
+						if (selRight[0] == toAdd[0]){
+							this.selectionStart = selStart;
+							this.selectionEnd = selStart + 1;
+							break;
+						} 
+					}
+					
+							
+					if (!(e.keyCode == 222 && selLeft[selLeft.length-1] == toAdd[0] )){ /* exception for quotes */
+				        target.value = value.substring(0, selStart) + toAdd[0] + toAdd[1] + value.substring(this.selectionEnd);
+				        this.selectionStart = this.selectionEnd = selStart + 1;
+				        e.preventDefault();
+					}
+					break;
+
+
+				case 48:  /* ) */
+				case 221:  /* ] or } */
+					if (e.altKey || e.ctrlKey) break;
+					if (!e.shiftKey && e.keyCode == 48) break;
+
+					if (e.keyCode == 48) toAdd = ')';
+					else toAdd = e.shiftKey ? '}' :']' ;
+
+					if (selRight[0] == toAdd){
+						this.selectionStart = selStart;
+						this.selectionEnd = selStart + 1;
+					} 
+					break;
+
+				case 13: /* <enter> */
+					/* Handle indentation */
+					var data = selLeft.split('\n');
+					var curLine = data[data.length-1];
+					var tabs = "", tabCount;
+					for (tabCount=0; tabCount<curLine.length ; tabCount++){
+						if (curLine[tabCount] != "\t") break;
+						tabs += "\t";
+					}
+					target.value = selLeft + "\n" + tabs + selRight;
+			        this.selectionStart = this.selectionEnd = selStart + 1 + tabCount;
+
+					/* Handle '}' */
+					if (selRight[0] == "}"){
+						target.value = selLeft + "\n\t" + tabs + "\n" + tabs + selRight;
+						this.selectionStart = this.selectionEnd = selStart + 2 + tabCount;
+					}
+
+					e.preventDefault();
+					break;
+
+
+				case 8:  /* <backspace> */
+					var sr = selRight[0];
+					var sl = selLeft[selLeft.length-1];
+					if (sl+sr== '[]' || sl+sr=='{}' || sl+sr== '()' || sl+sr== '""' || sl+sr== "''"){
+						this.selectionStart = selStart - 1;
+						this.selectionEnd = selStart + 1;
+					}
+					break;
+			}
+	
+			checkTextChange();
+		}
+
+		function zero(str){
+			return str.length==1? "0" + str : str;
+		}
+
+		function save() { /* save and download file */
+			var now = new Date();
+			filename = mtext.value.split('\n')[0].trim() + " ";
+			filename += now.getFullYear() + "-" + zero("" + now.getMonth()) + "-" + zero("" + now.getDay());
+			filename += " " + zero(""+now.getHours()) + "." + zero(""+now.getMinutes()) + "." + zero(""+now.getSeconds()) + ".txt";
+			text = mtext.value;
+
+			var pom = document.createElement('a');
+			pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			pom.setAttribute('download', filename);
+			pom.click();
+
+			textsave = mtext.value;
+			checkTextChange();
+		}
+
+		function closing(e){
+			if (mtext.value != textsave) return "You have unsaved changes.";
+		};
+
+</script>
