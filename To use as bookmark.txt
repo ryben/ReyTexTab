@@ -1,0 +1,5 @@
+data:text/html, <html>
+
+{add code from index.html here}
+
+</html>
