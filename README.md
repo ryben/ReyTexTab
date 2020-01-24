@@ -1,1 +1,1 @@
-# ReyTexTab
+# TexTab
