@@ -5,9 +5,11 @@
 <script type="text/javascript">
 		var mtext = document.getElementsByTagName("textarea")[0];
 
-		var url = new URL(window.location.href)
+		var url = new URL(window.location.href);
+		var noFocusOnLoad = url.searchParams.get('nofocus');
+		var confirmOnClose = url.searchParams.get('confirmclose');
 
-		if (url.searchParams.get('focus') !== 'false') {
+		if (noFocusOnLoad == undefined) {
 			mtext.focus();
 		}
 
@@ -157,7 +159,7 @@
 		}
 
 		function closing(e){
-			if (mtext.value != textsave) return "You have unsaved changes.";
+			if (mtext.value != textsave && confirmOnClose != undefined) return "You have unsaved changes.";
 		};
 
 </script>
