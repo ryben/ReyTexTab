@@ -6,9 +6,7 @@
 		const DATA_KEY = "ReyTexTab"
 
 		var mtext = document.getElementsByTagName("textarea")[0];
-
-		// retrieve saved data from browser cookie if any
-		mtext.value = localStorage.getItem(DATA_KEY)
+		loadFromCookie()
 
 		var url = new URL(window.location.href);
 		var noFocusOnLoad = url.searchParams.get('nofocus');
@@ -37,6 +35,14 @@
 			}, false);
 		}
 
+		window.onfocus = function() {
+		    loadFromCookie()
+		};
+
+		window.onblur = function() {
+		    saveToCookie()
+		};
+
 
 		function addEventListenerMulti(obj, events, fxn, pols){
 			es = events.split(" ");
@@ -52,8 +58,15 @@
 			var mtitle = document.getElementsByTagName("title")[0];
 			// mtitle.text = (mtext.value != textsave) ? "* ReyTexTab" : "ReyTexTab";
 
-			// save to browser cookie
+			saveToCookie()
+		}
+
+		function saveToCookie() {
 			localStorage.setItem(DATA_KEY, mtext.value)
+		}
+
+		function loadFromCookie() {
+			mtext.value = localStorage.getItem(DATA_KEY)
 		}
 
 		function handleChars(e){
