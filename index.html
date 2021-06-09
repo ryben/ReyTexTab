@@ -3,7 +3,12 @@
 <body bgcolor=272822></body>
 
 <script type="text/javascript">
+		const DATA_KEY = "ReyTexTab"
+
 		var mtext = document.getElementsByTagName("textarea")[0];
+
+		// retrieve saved data from browser cookie if any
+		mtext.value = localStorage.getItem(DATA_KEY)
 
 		var url = new URL(window.location.href);
 		var noFocusOnLoad = url.searchParams.get('nofocus');
@@ -45,7 +50,10 @@
 
 		function checkTextChange(){
 			var mtitle = document.getElementsByTagName("title")[0];
-			mtitle.text = (mtext.value != textsave) ? "* ReyTexTab" : "ReyTexTab";
+			// mtitle.text = (mtext.value != textsave) ? "* ReyTexTab" : "ReyTexTab";
+
+			// save to browser cookie
+			localStorage.setItem(DATA_KEY, mtext.value)
 		}
 
 		function handleChars(e){
