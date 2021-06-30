@@ -1,4 +1,7 @@
 <title>ReyTexTab</title>
+<head>
+	<link rel="icon" href="t.png">
+</head>
 <textarea spellcheck=false style="outline:none;height:100%;width:100%;border:none;background-color:272822;color:f7f8f2;padding:2rem;font:1.2rem monospace;"></textarea>
 <body bgcolor=272822></body>
 
@@ -6,7 +9,7 @@
 		const DATA_KEY = "ReyTexTab"
 
 		var mtext = document.getElementsByTagName("textarea")[0];
-		loadFromCookie()
+		loadFromLocalStorage()
 
 		var url = new URL(window.location.href);
 		var noFocusOnLoad = url.searchParams.get('nofocus');
@@ -24,6 +27,7 @@
 			mtext.addEventListener("keydown", handleChars, false);
 
 			addEventListenerMulti(mtext, "keyup change mouseup drop paste cut", checkTextChange, false);
+			window.addEventListener('storage', () => {loadFromLocalStorage()})
 			mtext.addEventListener("drop", unsaved, false);
 
 
@@ -36,11 +40,11 @@
 		}
 
 		window.onfocus = function() {
-		    loadFromCookie()
+		    loadFromLocalStorage()
 		};
 
 		window.onblur = function() {
-		    saveToCookie()
+		    saveToLocalStorage()
 		};
 
 
@@ -58,14 +62,14 @@
 			var mtitle = document.getElementsByTagName("title")[0];
 			// mtitle.text = (mtext.value != textsave) ? "* ReyTexTab" : "ReyTexTab";
 
-			saveToCookie()
+			saveToLocalStorage()
 		}
 
-		function saveToCookie() {
+		function saveToLocalStorage() {
 			localStorage.setItem(DATA_KEY, mtext.value)
 		}
 
-		function loadFromCookie() {
+		function loadFromLocalStorage() {
 			mtext.value = localStorage.getItem(DATA_KEY)
 		}
 
